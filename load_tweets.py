@@ -87,21 +87,20 @@ def insert_tweet(connection,tweet):
     '''    
 
     # skip tweet if it's already inserted
-    sql=sqlalchemy.sql.text('''
-    SELECT id_tweets 
-    FROM tweets
-    WHERE id_tweets = :id_tweets
-    ''')
-    res = connection.execute(sql,{
-        'id_tweets':tweet['id'],
-        })
-    if res.first() is not None:
-        return
 
     # insert tweet within a transaction;
     # this ensures that a tweet does not get "partially" loaded
-    with connection.begin_nested() as trans:
-
+    with connection.begin() as trans:
+        sql=sqlalchemy.sql.text('''
+            SELECT id_tweets
+            FROM tweets
+            WHERE id_tweets = :id_tweets
+            ''')
+        res = connection.execute(sql,{
+            'id_tweets':tweet['id'],
+        })
+        if res.first() is not None:
+            return
         ########################################
         # insert into the users table
         ########################################
@@ -145,7 +144,7 @@ def insert_tweet(connection,tweet):
                 :description,
                 :withheld_in_countries
             )
-            ON CONFLICT (id_users) DO NOTHING
+            ON CONFLICT DO NOTHING
         ''')
         #DONT DO THIS: ({TWEET['user']['id]}, {tweet['created_at']}, ...)
         # DONT INSERT DATA AT THE PYTHON STRING LEVEL
@@ -283,7 +282,7 @@ def insert_tweet(connection,tweet):
                 :lang,
                 :place_name,
                 :geo
-            )
+            ) ON CONFLICT DO NOTHING
         ''')
 
         res = connection.execute(sql, {
@@ -333,7 +332,7 @@ def insert_tweet(connection,tweet):
                     VALUES (
                     :id_tweets,
                     :id_urls
-                    ) ON CONFLICT (id_tweets, id_urls) DO NOTHING;
+                    ) ON CONFLICT DO NOTHING;
                 ''')
             res = connection.execute(sql, {
                 'id_tweets': tweet['id'],
@@ -368,7 +367,7 @@ def insert_tweet(connection,tweet):
                         :screen_name,
                         :name
                     )
-                    ON CONFLICT (id_users) DO NOTHING;
+                    ON CONFLICT DO NOTHING;
                 ''')
             res = connection.execute(sql, {
                     'id_users':mention['id'],
@@ -385,7 +384,7 @@ def insert_tweet(connection,tweet):
                         :id_tweets,
                         :id_users
                     )
-                    ON CONFLICT (id_tweets, id_users) DO NOTHING;
+                    ON CONFLICT DO NOTHING;
                 ''')
             res = connection.execute(sql, {
                  'id_tweets':tweet['id'],
@@ -414,7 +413,7 @@ def insert_tweet(connection,tweet):
                         :id_tweets,
                         :tag
                     )
-                    ON CONFLICT (id_tweets, tag) DO NOTHING;
+                    ON CONFLICT DO NOTHING;
                 ''')
             res = connection.execute(sql, {
                     'id_tweets':tweet['id'],
@@ -443,7 +442,7 @@ def insert_tweet(connection,tweet):
                         :id_tweets,
                         :id_urls
                     )
-                    ON CONFLICT (id_tweets, id_urls) DO NOTHING;
+                    ON CONFLICT DO NOTHING;
                 ''')
             res=connection.execute(sql, {
                     'id_tweets':tweet['id'],
@@ -488,4 +487,3 @@ if __name__ == '__main__':
                         # print message
                         if i%args.print_every==0:
                             print(datetime.datetime.now(),filename,subfilename,'i=',i,'id=',tweet['id'])
-connection.commit()
