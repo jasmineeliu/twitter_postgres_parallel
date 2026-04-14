@@ -100,8 +100,7 @@ def insert_tweet(connection,tweet):
 
     # insert tweet within a transaction;
     # this ensures that a tweet does not get "partially" loaded
-    connection.rollback()
-    with connection.begin() as trans:
+    with connection.begin_nested() as trans:
 
         ########################################
         # insert into the users table
@@ -237,7 +236,7 @@ def insert_tweet(connection,tweet):
              if res.first() is None:
                 sql=sqlalchemy.sql.text('''
                     INSERT INTO users (id_users)
-                    VALUES (:id_users)
+                    VALUES (:id_users) ON CONFLICT DO NOTHING;
                 ''')
                 res = connection.execute(sql, {
                     'id_users':tweet.get('in_reply_to_user_id')
@@ -489,3 +488,4 @@ if __name__ == '__main__':
                         # print message
                         if i%args.print_every==0:
                             print(datetime.datetime.now(),filename,subfilename,'i=',i,'id=',tweet['id'])
+connection.commit()
