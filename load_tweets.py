@@ -84,11 +84,7 @@ def insert_tweet(connection,tweet):
 
     NOTE:
     This function cannot be tested with standard python testing tools because it interacts with the db.
-    
-    FIXME:
-    This function is only partially implemented.
-    You'll need to add appropriate SQL insert statements to get it to work.
-    '''
+    '''    
 
     # skip tweet if it's already inserted
     sql=sqlalchemy.sql.text('''
@@ -104,7 +100,7 @@ def insert_tweet(connection,tweet):
 
     # insert tweet within a transaction;
     # this ensures that a tweet does not get "partially" loaded
-    connection.commit()
+    connection.rollback()
     with connection.begin() as trans:
 
         ########################################
