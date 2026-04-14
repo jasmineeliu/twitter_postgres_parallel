@@ -128,7 +128,6 @@ def bulk_insert(connection, table, rows):
     sql, binds = _bulk_insert_sql(table, rows)
     res = connection.execute(sqlalchemy.sql.text(sql), binds)
 
-
 ################################################################################
 # main functions
 ################################################################################
@@ -223,6 +222,9 @@ def _insert_tweets(connection,input_tweets):
                 if tweet['user']['geo_enabled']:
                     geo_str = None
                     geo_coords = None
+                else:
+                    geo_str = None
+                    geo_coords = None
 
         try:
             text = tweet['extended_tweet']['full_text']
@@ -293,7 +295,7 @@ def _insert_tweets(connection,input_tweets):
         for url in urls:
             tweet_urls.append({
                 'id_tweets':tweet['id'],
-                'url':tweet['user']['url'],
+                'url':url['expanded_url'],
                 })
 
         ########################################
@@ -351,7 +353,7 @@ def _insert_tweets(connection,input_tweets):
         for medium in media:
             tweet_media.append({
                 'id_tweets':tweet['id'],
-                'url':tweet['user']['url'],
+                'url':medium['media_url'],
                 'type':medium['type']
                 })
 
@@ -399,7 +401,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--db',required=True)
     parser.add_argument('--inputs',nargs='+',required=True)
-    parser.add_argument('--batch_size',type=int,default=1000)
+    parser.add_argument('--batch_size',type=int,default=2)
     args = parser.parse_args()
 
     # create database connection
