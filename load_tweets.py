@@ -310,7 +310,7 @@ def insert_tweet(connection,tweet):
             'state_code': remove_nulls(state_code),  # depends on your parsing logic
             'lang': tweet.get('lang'),
             'place_name': remove_nulls(place_name),
-            'geo_full_str': geo_full_str
+            'geo_full_str': None 
         })
         ########################################
         # insert into the tweet_urls table
