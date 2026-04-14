@@ -190,12 +190,10 @@ def insert_tweet(connection,tweet):
                     geo_coords+=')'
                 geo_coords+=')'
                 geo_str = 'MULTIPOLYGON'
-                geo_full_str = f"{geo_str}({geo_coords})"
             except KeyError:
                 if tweet['user']['geo_enabled']:
                     geo_str = None
                     geo_coords = None
-                    geo_full_str = None
         try:
             text = tweet['extended_tweet']['full_text']
         except:
@@ -310,7 +308,7 @@ def insert_tweet(connection,tweet):
             'state_code': remove_nulls(state_code),  # depends on your parsing logic
             'lang': tweet.get('lang'),
             'place_name': remove_nulls(place_name),
-            'geo_full_str': None 
+            'geo': None 
         })
         ########################################
         # insert into the tweet_urls table
